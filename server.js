@@ -456,11 +456,10 @@ async function pingMicroservices(req, res, next) {
         try {
           let furl = microservice.url;
           if (!microservice.url.startsWith('http://') && !microservice.url.startsWith('https://')) {
-            // If it doesn't start with either, add 'http://'
             furl = 'http://' + microservice.url;
           }
 
-          const response = await fetch(furl, { timeout: 5000 }, {
+          const response = await fetch(furl, { timeout: 10000 }, {
             headers: {
               'X-Client-Id': clientId,
             },
@@ -481,15 +480,33 @@ async function pingMicroservices(req, res, next) {
             };
           }
         } catch (error) {
-          console.error(`Error fetching data from ${microservice.url}:`, error);
-          console.error('HTTP Status Code:', error.response ? error.response.status : 'N/A');
-          return {
-            url: microservice.url,
-            microserviceLive: false,
-          };
+          if (error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT') {
+            // Handle hostname resolution or timeout errors gracefully
+            console.error(`Error fetching data from ${microservice.url}:`, error);
+            return {
+              url: microservice.url,
+              microserviceLive: false,
+            };
+          } else {
+            // Handle other errors
+            console.error(`Unexpected error fetching data from ${microservice.url}:`, error);
+            return {
+              url: microservice.url,
+              microserviceLive: false,
+            };
+          }
         }
       })
     );
+
+    req.microserviceLiveResults = microserviceLiveResults;
+    return next();
+  } catch (error) {
+    console.error('Error fetching microservice responses:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 
     req.microserviceLiveResults = microserviceLiveResults;
     return next();

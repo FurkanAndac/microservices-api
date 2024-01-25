@@ -228,10 +228,6 @@ app.get('/api/microservice-response', async (req, res) => {
                 }
             });
             const data = response
-            // data.text().then(function(result) {
-            //     console.log("test3: "+result)
-            // })
-
             
             return {
               url: formattedUrl,
@@ -253,14 +249,6 @@ app.get('/api/microservice-response', async (req, res) => {
     }
   });
 
-  app.get('/api/testmode', async (req, res) => {
-
-
-  })
-  // ... (Existing code)
-
-// Endpoint to handle frontend pings
-// Define the frontend ping endpoint
 app.get('/api/frontend-ping', async (req, res) => {
   try {
     const microservices = await Microservice.find({ client: req.clientId });
@@ -273,11 +261,6 @@ app.get('/api/frontend-ping', async (req, res) => {
             // If it doesn't start with either, add 'http://'
             furl = 'http://' + microservice.url;
           }
-          console.log(furl)
-          // const formattedUrl = new URL(
-          //   microservice.url
-          //   .startsWith('http') ? microservice.url : `http://${microservice.url}`
-          // );
 
           const response = await fetch(furl, { timeout: 100000 }, {
             headers: {
@@ -305,7 +288,7 @@ app.get('/api/frontend-ping', async (req, res) => {
         }
         } catch (error) {
           console.error(`Error fetching data from ${microservice.url}:`, error);
-          console.error(`test7Error fetching data from ${microservice.url}:`, error.message);
+          console.error(`Error fetching data from ${microservice.url}:`, error.message);
           console.log('HTTP Status Code:', error.response ? error.response.status : 'N/A');
           return {
             url: microservice.url,
@@ -314,9 +297,9 @@ app.get('/api/frontend-ping', async (req, res) => {
         }
       })
     );
-    microserviceLiveResults.forEach(element => {
-      console.log("test8"+Object.entries(element))
-    });
+    // microserviceLiveResults.forEach(element => {
+    //   console.log("test8"+Object.entries(element))
+    // });
     res.json({ microserviceLiveResults });
   } catch (error) {
     console.error('Error fetching microservice responses:', error);
@@ -328,7 +311,6 @@ app.post('/api/frontend-ping', (req, res) => {
   try {
     // Perform any logic you need for frontend ping
     // You can access request data using req.body, req.headers, etc.
-    console.log("test2"+ req.body)
     const body = req.body
     // Example: Assume you want to send a simple success response
     res.json({ body: body, status: 'success', message: 'Frontend ping received successfully.' });
@@ -425,9 +407,9 @@ async function pingUrls() {
 }
 
 // Schedule the job to run every 15 seconds
-cron.schedule('*/15 * * * * *', () => {
-    pingUrls();
-});
+// cron.schedule('*/15 * * * * *', () => {
+//     pingUrls();
+// });
 
 async function fetchData() {
   try {
@@ -438,10 +420,10 @@ async function fetchData() {
     console.error('Error fetching data:', error.message);
   }
 }
-cron.schedule('*/15 * * * * *', () => {
+// cron.schedule('*/15 * * * * *', () => {
 
-fetchData();
-});
+// fetchData();
+// });
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

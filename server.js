@@ -394,6 +394,9 @@ const allowedOrigins = [
   'https://microservices-front-end-4469d14ad8b3.herokuapp.com'
 ];
 
+//Handles post requests
+app.use(express.bodyParser());
+
 // Middleware
 app.use(cors({
   origin: (origin, callback) => {

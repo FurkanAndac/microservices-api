@@ -451,6 +451,7 @@ async function findMicroservices(req, res, next) {
 
 async function pingMicroservices(req, res, next) {
   try {
+    console.log("step1")
     const microserviceLiveResults = await Promise.all(
       req.microservices.map(async (microservice) => {
         try {
@@ -458,14 +459,14 @@ async function pingMicroservices(req, res, next) {
           if (!microservice.url.startsWith('http://') && !microservice.url.startsWith('https://')) {
             furl = 'http://' + microservice.url;
           }
-
+          console.log("step2")
           const response = await fetch(furl, { timeout: 10000 }, {
             headers: {
               'X-Client-Id': clientId,
             },
           });
-
-          const data = await response.text();
+          console.log("step3")
+          // const data = await response.text();
 
           if (!response.ok) {
             console.error(`HTTP error! Status: ${response.status}`);
@@ -474,6 +475,7 @@ async function pingMicroservices(req, res, next) {
               microserviceLive: false,
             };
           } else {
+            console.log("step4")
             return {
               url: furl,
               microserviceLive: true,

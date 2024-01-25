@@ -400,7 +400,7 @@ app.use(cors({
     const isAllowed = allowedOrigins.includes(origin) || !origin;
     callback(null, isAllowed);
   },
-  methods: ['GET', 'POST', 'OPTIONS', 'DELETE'],
+  methods: ['GET', 'PUT', 'POST', 'OPTIONS', 'DELETE'],
   allowedHeaders: ['Content-Type', 'X-Client-Id'],
   maxAge: 604800, // 7 days
 }));

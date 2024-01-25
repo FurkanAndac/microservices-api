@@ -22,23 +22,28 @@ async function getMicroservices(req, res) {
 
 
 async function addMicroservice(req, res) {
-  try {
-    const { name, url, client, production } = req.body;
-
-    if (!name || !url || !client) {
-      return res.status(400).json({ error: 'Both name, url, and client parameters are required.' });
+    try {
+      const { name, url, client, production } = req.body;
+  
+      console.log('Request body:', req.body); // Add this line for debugging
+  
+      if (!name || !url || !client) {
+        return res.status(400).json({ error: 'Both name, url, and client parameters are required.' });
+      }
+  
+      const newMicroservice = new Microservice({ name, url, client, production });
+      console.log('New Microservice:', newMicroservice); // Add this line for debugging
+  
+      await newMicroservice.save();
+      console.log('Microservice saved successfully'); // Add this line for debugging
+  
+      res.json({ name, url, client, production });
+    } catch (error) {
+      console.error('Error adding microservice:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
-
-    const newMicroservice = new Microservice({ name, url, client, production });
-    console.log("test1"+newMicroservice)
-    await newMicroservice.save();
-    console.log("test2"+newMicroservice)
-    res.json({ name, url, client, production });
-  } catch (error) {
-    console.error('Error adding microservice:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
   }
-}
+  
 
 async function deleteMicroservice(req, res) {
   try {

@@ -1,8 +1,9 @@
 // database.js
+require('dotenv').config(); // Load environment variables from .env file
 const mongoose = require('mongoose');
 
 function connectToDatabase() {
-  mongoose.connect('mongodb+srv://FurkanAndac:jwhbkvm9321@agencies-shared-cluster.c5ugmev.mongodb.net/microservices-tool', {
+  mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });

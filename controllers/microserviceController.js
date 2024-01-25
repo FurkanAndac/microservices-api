@@ -23,7 +23,7 @@ async function getMicroservices(req, res) {
 
 async function addMicroservice(req, res) {
     try {
-        console.log("request: ", req)
+        console.log("request: ", req.body)
       const { name, url, client, production } = req.body;
   
       console.log('Request body:', req.body); // Add this line for debugging

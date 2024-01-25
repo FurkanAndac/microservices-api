@@ -391,7 +391,7 @@ const allowedOrigins = [
   // Add more origins as needed
   // 'http://localhost:8080',
   // 'https://early-baths-greet.loca.lt',
-  'https://microservices-front-end-4469d14ad8b3.herokuapp.com/'
+  'https://microservices-front-end-4469d14ad8b3.herokuapp.com'
 ];
 
 // Middleware

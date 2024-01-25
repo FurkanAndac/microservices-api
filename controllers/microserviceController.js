@@ -4,18 +4,19 @@
 const Microservice = require('../models/Microservice');
 
 async function getMicroservices(req, res) {
-  console.log('Microservice model:', Microservice); // Log the Microservice model
-  console.log(req.rawHeaders);
-
-  try {
-    const productionMode = req.query.production === 'true';
-    const collections = await Microservice.find({ client: req.clientId });
-    res.json(collections);
-  } catch (error) {
-    console.error('Error fetching collections:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.log('Microservice model:', Microservice);
+    console.log('Client ID:', req.clientId);
+  
+    try {
+    //   const productionMode = req.query.production === 'true';
+      const collections = await Microservice.find({ client: req.clientId });
+      console.log('Collections:', collections);
+      res.json(collections);
+    } catch (error) {
+      console.error('Error fetching collections:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
   }
-}
 
 // Rest of your code...
 

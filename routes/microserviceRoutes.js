@@ -6,6 +6,9 @@ const { getMicroservices, addMicroservice, deleteMicroservice } = require('../co
 // API endpoint to get collections associated with the client
 router.get('/', getMicroservices);
 
+// API endpoint to get collections associated with the client
+router.get('/?production', getMicroservices);
+
 // API endpoint for handling POST requests
 router.post('/', addMicroservice);
 

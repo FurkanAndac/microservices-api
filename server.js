@@ -389,8 +389,8 @@ const allowedOrigins = [
   // 'https://agency-website.microservices.com',
   // 'https://eventplanners.microservices.com',
   // Add more origins as needed
-  'http://localhost:8080',
-  'https://early-baths-greet.loca.lt',
+  // 'http://localhost:8080',
+  // 'https://early-baths-greet.loca.lt',
   'https://microservices-front-end-4469d14ad8b3.herokuapp.com/'
 ];
 
@@ -405,18 +405,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'X-Client-Id'],
   maxAge: 604800, // 7 days
 }));
-var timeout = require('connect-timeout')
 
-// example of using this top-level; note the use of haltOnTimedout
-// after every middleware; it will stop the request flow on a timeout
-app.use(timeout('5s'))
-app.use(haltOnTimedout)
-
-// Add your routes here, etc.
-
-function haltOnTimedout (req, res, next) {
-  if (!req.timedout) next()
-}
 // Middleware to extract client identifier from headers
 app.use((req, res, next) => {
   const clientId = req.header('X-Client-ID');

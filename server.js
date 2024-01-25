@@ -505,16 +505,7 @@ async function pingMicroservices(req, res, next) {
     console.error('Error fetching microservice responses:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
-}
-
-
-    req.microserviceLiveResults = microserviceLiveResults;
-    return next();
-  } catch (error) {
-    console.error('Error fetching microservice responses:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
-  }
-}
+};
 
 function handlePingResults(req, res) {
   res.json({ microserviceLiveResults: req.microserviceLiveResults });

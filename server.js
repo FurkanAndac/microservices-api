@@ -448,7 +448,7 @@ app.get('/api/frontend-ping', async (req, res) => {
             furl = 'http://' + microservice.url;
           }
 
-          const response = await fetch(furl, { timeout: 100000 }, {
+          const response = await fetch(furl, { timeout: 5000 }, {
             headers: {
               'X-Client-Id': clientId,
             },

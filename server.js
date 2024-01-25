@@ -395,7 +395,7 @@ const allowedOrigins = [
 ];
 
 //Handles post requests
-app.use(express.bodyParser());
+app.use(bodyParser.json());
 
 // Middleware
 app.use(cors({

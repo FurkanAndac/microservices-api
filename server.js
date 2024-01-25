@@ -435,11 +435,24 @@ connectToDatabase();
 // Define routes
 app.use('/api', routes);
 
-app.get('/api/frontend-ping', async (req, res) => {
+app.get('/api/frontend-ping', findMicroservices, pingMicroservices, handlePingResults);
+
+
+async function findMicroservices(req, res, next) {
   try {
     const microservices = await Microservice.find({ client: req.clientId });
+    req.microservices = microservices;
+    return next();
+  } catch (error) {
+    console.error('Error fetching microservices:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+async function pingMicroservices(req, res, next) {
+  try {
     const microserviceLiveResults = await Promise.all(
-      microservices.map(async (microservice) => {
+      req.microservices.map(async (microservice) => {
         try {
           let furl = microservice.url;
           if (!microservice.url.startsWith('http://') && !microservice.url.startsWith('https://')) {
@@ -478,12 +491,17 @@ app.get('/api/frontend-ping', async (req, res) => {
       })
     );
 
-    res.json({ microserviceLiveResults });
+    req.microserviceLiveResults = microserviceLiveResults;
+    return next();
   } catch (error) {
-    console.error('Error in frontend ping:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error fetching microservice responses:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
-});
+}
+
+function handlePingResults(req, res) {
+  res.json({ microserviceLiveResults: req.microserviceLiveResults });
+}
 
 // Start the server
 const server = app.listen(port, () => {

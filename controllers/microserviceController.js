@@ -30,8 +30,9 @@ async function addMicroservice(req, res) {
     }
 
     const newMicroservice = new Microservice({ name, url, client, production });
+    console.log("test1"+newMicroservice)
     await newMicroservice.save();
-
+    console.log("test2"+newMicroservice)
     res.json({ name, url, client, production });
   } catch (error) {
     console.error('Error adding microservice:', error);

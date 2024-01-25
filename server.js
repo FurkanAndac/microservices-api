@@ -385,9 +385,21 @@ const app = express();
 const port = process.env.PORT || 5000;
 const clientId = '65ae9f8a0a21b787ee3c9745'; // Replace with your actual clientId
 
+const allowedOrigins = [
+  // 'https://agency-website.microservices.com',
+  // 'https://eventplanners.microservices.com',
+  // Add more origins as needed
+  'http://localhost:8080',
+  'https://early-baths-greet.loca.lt',
+];
+
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:8080',
+  origin: (origin, callback) => {
+    // Check if the incoming origin is in the allowedOrigins array or if it's undefined (e.g., from a non-browser client)
+    const isAllowed = allowedOrigins.includes(origin) || !origin;
+    callback(null, isAllowed);
+  },
   methods: ['GET', 'POST', 'OPTIONS', 'DELETE'],
   allowedHeaders: ['Content-Type', 'X-Client-Id'],
   maxAge: 604800, // 7 days

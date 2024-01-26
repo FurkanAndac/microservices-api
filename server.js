@@ -389,13 +389,11 @@ const allowedOrigins = [
   // 'https://agency-website.microservices.com',
   // 'https://eventplanners.microservices.com',
   // Add more origins as needed
-  // 'http://localhost:8080',
+  'http://localhost:8080',
   // 'https://early-baths-greet.loca.lt',
   'https://microservices-front-end-4469d14ad8b3.herokuapp.com'
 ];
 
-//Handles post requests
-app.use(bodyParser.json());
 
 // Middleware
 app.use(cors({
@@ -408,6 +406,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'X-Client-Id'],
   maxAge: 604800, // 7 days
 }));
+
+//Handles post requests
+app.use(bodyParser.json());
+
 
 // Middleware to extract client identifier from headers
 app.use((req, res, next) => {
@@ -445,6 +447,7 @@ async function findMicroservices(req, res, next) {
   try {
     const microservices = await Microservice.find({ client: req.clientId });
     req.microservices = microservices;
+    console.log("req.microservices:", req.microservices)
     return next();
   } catch (error) {
     console.error('Error fetching microservices:', error);
@@ -462,23 +465,33 @@ async function pingMicroservices(req, res, next) {
           if (!microservice.url.startsWith('http://') && !microservice.url.startsWith('https://')) {
             furl = 'http://' + microservice.url;
           }
-          console.log("step2")
+          // furl = furl.replace(/^https?:\/\//, '');
+
+          console.log("cleaned URL:", furl)
           const response = await fetch(furl, { timeout: 10000 }, {
             headers: {
               'X-Client-Id': clientId,
             },
           });
-          console.log("step3")
           // const data = await response.text();
 
-          if (!response.ok) {
+          if (!response.ok && response.status == 400) {
             console.error(`HTTP error! Status: ${response.status}`);
+            console.log("step3",furl)
             return {
               url: furl,
               microserviceLive: false,
             };
+          } 
+          if (!response.ok && response.status == 401) {
+            console.error(`HTTP error! Status: ${response.status}`);
+            console.log("step3",furl)
+            return {
+              url: furl,
+              microserviceLive: true,
+            };
           } else {
-            console.log("step4")
+            console.log("step4", furl)
             return {
               url: furl,
               microserviceLive: true,

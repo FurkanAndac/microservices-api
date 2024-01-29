@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const clientsSchema = new mongoose.Schema({
-  _id: mongoose.Schema.Types.ObjectId,
   name: {
     type: String,
     required: true
@@ -10,11 +9,22 @@ const clientsSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  password: {
+    type: String,
+    required: true
+  },
   members: {
     type: [String],
     required: true
-  }
+  },
+  authToken: {
+    type: String,
+  },
+  tokenExpiration: {
+    type: Date,
+  },
 });
+
 
 const Clients = mongoose.model('Clients', clientsSchema);
 

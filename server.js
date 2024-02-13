@@ -45,15 +45,15 @@ app.use(cors({
 }));
 
 //Handles post requests
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
 
 
 
 // Middleware to extract client identifier from headers
 app.use((req, res, next) => {
-  const authToken = req.cookies.jwtToken;
+  const authToken = req.headers.authorization;
   console.log("authToken:"+authToken)
   console.log('Cookies: ', JSON.stringify(req.cookies, null, 2));
   console.log('Request Headers:', req.headers);

@@ -56,6 +56,7 @@ app.use((req, res, next) => {
   const authToken = req.cookies.jwtToken;
   console.log("authToken:"+authToken)
   console.log('Cookies: ', JSON.stringify(req.cookies, null, 2));
+  console.log('Request Headers:', req.headers);
 
 
   // Skip authorization check for certain paths

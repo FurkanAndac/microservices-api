@@ -54,7 +54,7 @@ app.use(cookieParser());
 // Middleware to extract client identifier from headers
 app.use((req, res, next) => {
   const authToken = req.cookies.jwtToken;
-  console.log("authToken:"+authToken.toString())
+  console.log("authToken:"+authToken)
 
   // Skip authorization check for certain paths
   if (

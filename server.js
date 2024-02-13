@@ -54,12 +54,14 @@ app.use(cookieParser());
 // Middleware to extract client identifier from headers
 app.use((req, res, next) => {
   const authToken = req.cookies.jwtToken;
-  console.log('authtoken: ',authToken)
-  console.log('req.cookies:',req.cookies)
-  console.log('req.path:', req.path)
 
-  // Skip authorization check for registration
-  if (req.path === '/api/clients/register' || req.path === '/api/clients/login' || req.path === '/api/cookies/set-cookie' || req.path === '/send-contact') {
+  // Skip authorization check for certain paths
+  if (
+    req.path === '/api/clients/register' ||
+    req.path === '/api/clients/login' ||
+    req.path === '/api/cookies/set-cookie' ||
+    req.path === '/send-contact'
+  ) {
     return next();
   }
 
@@ -67,24 +69,29 @@ app.use((req, res, next) => {
     return res.status(401).json({ error: 'Authorization token not provided.' });
   }
 
-  
-const tokenWithBearer = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpsYldGcGJDSTZJbXB2YUc1NWMwQmxlR0Z0Y0d4bExtTnZiU0lzSW1saGRDSTZNVGN3TmpRME5EazFPQ3dpWlhod0lqb3hOekE1TURNMk9UVTRmUS5well6NXVydkdocEVOX1F3UERfbTdNODhKYUUxUjF3RG02dzUwODhfSWpRIn0.dsdNSwAXFGxdg_1VxnSS2wsNU7XkyLm-QDo8Q-52aVA';
+  // Remove 'Bearer ' prefix
+  const token = authToken.replace('Bearer ', '');
 
-// Remove 'Bearer ' prefix
-const token = authToken.replace('Bearer ', '');
-console.log(token)
-const decodedPayload = jwt.decode(token, { complete: true });
-
-console.log(decodedPayload);
   try {
     // Verify and decode the token
     const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
 
     // Attach the decoded token payload to the request for further processing
     req.decodedToken = decodedToken;
+    req.clientId = decodedToken.clientId;
 
-    console.log("decodedToken:", decodedToken)
-    req.clientId = decodedToken.clientId
+    // Check if the token is about to expire (e.g., within the next 5 minutes)
+    const expirationThreshold = 5 * 60 * 1000; // 5 minutes in milliseconds
+    const currentTime = Date.now();
+
+    if (decodedToken.exp * 1000 < currentTime + expirationThreshold) {
+      // Token is about to expire or has already expired
+      // You may want to perform additional actions here, such as logging out the user
+      console.log('Token is about to expire or has expired. Logging out user.');
+      // Redirect to the logout route or perform a logout action
+      return res.status(401).json({ error: 'Token has expired. Please log in again.' });
+    }
+
     next();
   } catch (error) {
     console.error('Error verifying token:', error);

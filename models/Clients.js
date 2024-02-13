@@ -1,5 +1,20 @@
 const mongoose = require('mongoose');
 
+const memberSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  role: {
+    type: String,
+    required: true
+  }
+});
+
 const clientsSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -14,7 +29,11 @@ const clientsSchema = new mongoose.Schema({
     required: true
   },
   members: {
-    type: [String],
+    type: [memberSchema],
+    required: true
+  },
+  role: {
+    type: String,
     required: true
   },
   authToken: {
@@ -22,6 +41,13 @@ const clientsSchema = new mongoose.Schema({
   },
   tokenExpiration: {
     type: Date,
+  },
+  hasPurchasedPackage: {
+    type: Boolean,
+    default: false,
+  },
+  trialExpiresAt: {
+    type: Date, // This field stores the trial expiration date
   },
 });
 

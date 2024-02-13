@@ -8,12 +8,15 @@ const { connectToDatabase } = require('./database');
 const Microservice = require('./models/Microservice')
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const sgMail = require('@sendgrid/mail');
 require('dotenv').config();
 
 
 const app = express();
 const port = process.env.PORT || 5000;
 const clientId = '65ae9f8a0a21b787ee3c9745'; // Replace with your actual clientId
+
+
 
 const allowedOrigins = [
   // 'https://agency-website.microservices.com',
@@ -22,7 +25,9 @@ const allowedOrigins = [
   'http://localhost:8080',
   // 'https://early-baths-greet.loca.lt',
   'https://microservices-front-end-4469d14ad8b3.herokuapp.com',
-  process.env.PRODUCTION_URL
+  process.env.PRODUCTION_URL,
+  process.env.MICROPULSE_MAIN_WEBSITE,
+
 ];
 
 
@@ -41,6 +46,7 @@ app.use(cors({
 
 //Handles post requests
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
@@ -49,9 +55,11 @@ app.use(cookieParser());
 app.use((req, res, next) => {
   const authToken = req.cookies.jwtToken;
   console.log('authtoken: ',authToken)
+  console.log('req.cookies:',req.cookies)
+  console.log('req.path:', req.path)
 
   // Skip authorization check for registration
-  if (req.path === '/api/clients/register' || req.path === '/api/clients/login' || req.path === '/api/cookies/set-cookie') {
+  if (req.path === '/api/clients/register' || req.path === '/api/clients/login' || req.path === '/api/cookies/set-cookie' || req.path === '/send-contact') {
     return next();
   }
 
@@ -181,6 +189,47 @@ async function pingMicroservices(req, res, next) {
 function handlePingResults(req, res) {
   res.json({ microserviceLiveResults: req.microserviceLiveResults });
 }
+
+// Serve your HTML form
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+app.post('/send-contact', (req, res) => {
+  res.header('Access-Control-Allow-Origin', process.env.MICROPULSE_MAIN_WEBSITE_TEST); // Update with your frontend origin
+  res.header('Access-Control-Allow-Methods', 'POST');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  const { name, email, subject, message } = req.body;
+  console.log('Received form data:', req.body);
+
+
+  // Validate that email is present and not empty
+  if (!email) {
+    return res.status(400).send('Email address is required');
+  }
+
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const msg = {
+    to: email,
+    from: 'furkan.andac@hotmail.com',
+    subject: subject,
+    text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+    html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong> ${message}</p>`,
+  };
+
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log('Email sent');
+      res.send('Email sent successfully');
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send('Error sending email');
+    });
+});
+
 
 // Start the server
 const server = app.listen(port, () => {

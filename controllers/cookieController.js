@@ -20,7 +20,7 @@ async function setCookie(req, res) {
     };
 
     // Generate the JWT token
-    const token = jwt.sign(payload, secretKey, { expiresIn: '30d' });
+    const token = jwt.sign(payload, secretKey, { expiresIn: '1d' });
 
     // Set the token in a cookie
     res.cookie('jwtToken', token, { httpOnly: true,

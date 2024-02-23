@@ -64,7 +64,8 @@ app.use((req, res, next) => {
     req.path === '/api/clients/register' ||
     req.path === '/api/clients/login' ||
     req.path === '/api/cookies/set-cookie' ||
-    req.path === '/send-contact'
+    req.path === '/send-contact' ||
+    req.path === '/api/stripe/post-monthly-subscription'
   ) {
     return next();
   }

@@ -2,6 +2,7 @@ const Clients = require('../models/Clients');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { Microservice } = require('../models');
 
 // Client registration logic
 async function register(req, res) {
@@ -129,8 +130,8 @@ const deleteTokensForClient = async (clientId) => {
 async function getClients(req, res) {
   try {
     // Retrieve the JWT token from the cookie
-    const authToken = req.cookies.jwtToken;
-
+    const authToken = req.headers.authorization;
+    console.log("authtoken:" + authToken);
     if (!authToken) {
       return res.status(401).json({ error: 'Authorization token not provided.' });
     }
@@ -153,14 +154,13 @@ async function getClients(req, res) {
 
     // Use the clientId to fetch clients from the database
     const clients = await Clients.find({ _id: clientId });
-    console.log("clients:"+clients);
-    
+
     res.json(clients.map(client => ({
       members: client.members,
       name: client.name,
       // role: client.role
     })));
-    } catch (error) {
+  } catch (error) {
     console.error('Error fetching clients:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
@@ -284,6 +284,75 @@ async function addMember(req, res) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
+async function setAdminMember(req, res) {
+  try {
+    // Retrieve the JWT token from the cookie
+    const authToken = req.cookies.jwtToken;
+
+    if (!authToken) {
+      return res.status(401).json({ error: 'Authorization token not provided.' });
+    }
+
+    // Remove 'Bearer ' prefix if present
+    const token = authToken.replace('Bearer ', '');
+
+    // Decode the JWT token to extract the clientId
+    const decodedPayload = jwt.decode(token);
+
+    if (!decodedPayload || !decodedPayload.clientId) {
+      return res.status(400).json({ error: 'Invalid token payload' });
+    }
+
+    const clientId = decodedPayload.clientId;
+
+    if (!mongoose.Types.ObjectId.isValid(clientId)) {
+      return res.status(400).json({ error: 'Invalid client ID' });
+    }
+
+    // Retrieve other parameters from the request
+    const { memberEmail } = req.query;
+
+    console.log(clientId);
+    console.log(memberEmail);
+
+    if (!clientId || !memberEmail) {
+      return res.status(400).json({ error: 'clientId and memberEmail parameters are required' });
+    }
+
+    // Fetch the user details from the user database using the provided memberEmail
+    const user = await Clients.findOne({ email: memberEmail });
+    const admin = await Clients.findOne({ _id: clientId })
+    const microservices = await Microservice.find({ client: clientId})
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found with the provided email.' });
+    }
+
+    // Extract the name and role from the fetched user details
+    const memberName = user.name;
+    const memberRole = user.role;
+
+    // Use the clientId to update the clients collection
+    const result = await Clients.findOneAndUpdate(
+      { _id: clientId },
+      { $addToSet: { members: { email: memberEmail, name: memberName, role: memberRole } } },
+      { new: true }
+    );
+
+    console.log(result);
+
+    if (!result) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    res.json({ message: 'Member added successfully', updatedClient: result });
+  } catch (error) {
+    console.error('Error adding member:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 // Export the controller functions
 module.exports = {
   login, register, logout, getClients, deleteMember, addMember
